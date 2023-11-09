@@ -22,7 +22,7 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: orders-auth
+      - name: orders-uaa
       - name: orders-db
 
   - name: orders-db-deployer
@@ -34,7 +34,7 @@ modules:
       - name: orders-db
 
 resources:
-  - name: orders-auth
+  - name: orders-uaa
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
