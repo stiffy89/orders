@@ -24,6 +24,7 @@ modules:
     requires:
       - name: orders-uaa
       - name: orders-db
+      - name: orders-destination
 
   - name: orders-db-deployer
     type: hdb
@@ -48,3 +49,8 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+  - name: orders-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
