@@ -7,31 +7,33 @@
   "private": true,
   "dependencies": {
     "@sap/cds": "^7",
-    "express": "^4",
+    "@sap/cds-hana": "^2",
     "@sap/xssec": "^3",
-    "passport": "^0",
-    "@sap/cds-hana": "^2"
+    "express": "^4",
+    "passport": "^0"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1",
-    "@sap/cds-dk": "^7"
+    "@sap/cds-dk": "^7",
+    "@sap/ux-specification": "^1.108.18"
   },
   "engines": {
     "node": "^16"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "cds": {
     "build": {
       "tasks": [
-          {
-              "for": "hana",
-              "dest": "../db"
-          },
-          {
-              "for": "node-cf"
-          }
+        {
+          "for": "hana",
+          "dest": "../db"
+        },
+        {
+          "for": "node-cf"
+        }
       ]
     },
     "requires": {
@@ -41,5 +43,8 @@
       },
       "destinations": true
     }
-  }
+  },
+  "sapux": [
+    "app/orders"
+  ]
 }
