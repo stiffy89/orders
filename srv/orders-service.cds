@@ -4,4 +4,4 @@ service ordersservice {
     entity PurchaseOrders as projection on orders.PurchaseOrders;
 }
 
-annotate ordersservice.PurchaseOrders with @odata.draft.enabled;
+//annotate ordersservice.PurchaseOrders with @odata.draft.enabled;
