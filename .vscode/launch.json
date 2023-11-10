@@ -25,7 +25,7 @@
       "remoteRoot": "/home/vcap/app"
     },
     {
-      "command" : "cds watch --hybrid profile",
+      "command" : "cds watch --profile hybrid",
       "name": "Hybrid Profile",
       "request": "launch",
       "type": "node-terminal",
