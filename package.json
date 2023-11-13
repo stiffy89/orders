@@ -41,7 +41,11 @@
       "db": {
         "kind": "hana-cloud"
       },
-      "destinations": true
+      "destinations": true,
+      "gwsample": {
+        "kind": "odata-v2",
+        "model": "srv/external/gwsample"
+      }
     }
   },
   "sapux": [
