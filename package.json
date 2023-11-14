@@ -49,7 +49,15 @@
             "destinations": true,
             "gwsample": {
                 "kind": "odata-v2",
-                "model": "srv/external/gwsample"
+                "model": "srv/external/gwsample",
+                "csrf" : true,
+                "csrfInBatch" : true,
+                "[production]" : {
+                    "credentials" : {
+                        "destination" : "ES5",
+                        "path" : "/sap/opu/odata/iwbep/GWSAMPLE_BASIC"
+                    }
+                }
             }
         }
     },
