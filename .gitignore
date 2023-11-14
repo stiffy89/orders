@@ -38,3 +38,8 @@ db/.env
 
 #core
 core
+
+#UI build
+dist/
+resources/
+app/*/package-lock.json

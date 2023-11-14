@@ -1,4 +1,5 @@
 using {sap} from '@sap/cds/common';
+using {gwsample as external} from '../srv/external/gwsample';
 
 namespace orders;
 
@@ -7,7 +8,9 @@ entity PurchaseOrders {
         Units: Integer;
         Date: Date;
         Price: Decimal(13,3);
-        // Product: Association to one Products;
-        // BusinessPartner: Association to one BusinessPartners;
-        // Currency: Association to one Currencies;
+        Product: Association to one Products;
+        BusinessPartner: Association to one BusinessPartners;
 }
+
+entity Products as projection on external.ProductSet;
+entity BusinessPartners as projection on external.BusinessPartnerSet;

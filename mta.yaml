@@ -1,58 +1,134 @@
-_schema-version: '3.1'
+_schema-version: "3.1"
 ID: orders
+description: A simple CAP project.
 version: 1.0.0
-description: "A simple CAP project."
+modules:
+- name: orders-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: orders-uaa
+  - name: orders-db
+  - name: orders-destination
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: orders-db-deployer
+  type: hdb
+  path: db
+  requires:
+  - name: orders-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: orders-destinations
+  type: com.sap.application.content
+  requires:
+  - name: orders-uaa
+    parameters:
+      service-key:
+        name: orders-uaa-key
+  - name: orders-html5-repo-host
+    parameters:
+      service-key:
+        name: orders-html5-repo-host-key
+  - name: srv-api
+  - name: orders-destination
+    parameters:
+      content-target: true
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Authentication: OAuth2UserTokenExchange
+          Name: orders-app-srv
+          TokenServiceInstanceName: orders-uaa
+          TokenServiceKeyName: orders-uaa-key
+          URL: ~{srv-api/srv-url}
+          sap.cloud.service: orders.service
+        - Name: orders-html5-repo-host
+          ServiceInstanceName: orders-html5-repo-host
+          ServiceKeyName: orders-html5-repo-host-key
+          sap.cloud.service: orders.service
+        - Authentication: OAuth2UserTokenExchange
+          Name: orders-uaa
+          ServiceInstanceName: orders-uaa
+          ServiceKeyName: orders-uaa-key
+          sap.cloud.service: orders.service
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true
+- name: orders-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: orders-html5-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - nsorders.zip
+      name: nsorders
+      target-path: resources/
+- name: nsorders
+  type: html5
+  path: app/orders
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: orders-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: orders-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+- name: orders-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: orders-destination
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+    service: destination
+    service-plan: lite
+- name: orders-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm install --production
-        - npx -p @sap/cds-dk cds build --production
-        - npx rimraf gen/db/src/gen/data
-modules:
-  - name: orders-srv
-    type: nodejs
-    path: gen/srv
-    parameters:
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm
-    provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
-        properties:
-          srv-url: ${default-url}
-    requires:
-      - name: orders-uaa
-      - name: orders-db
-      - name: orders-destination
-
-  - name: orders-db-deployer
-    type: hdb
-    path: db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
-      - name: orders-db
-
-resources:
-  - name: orders-uaa
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: xsuaa
-      service-plan: application
-      path: ./xs-security.json
-      config:
-        xsappname: orders-${org}-${space}
-        tenant-mode: dedicated
-  - name: orders-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
-  - name: orders-destination
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: destination
-      service-plan: lite
+  - builder: custom
+    commands:
+    - npm install --production
+    - npx -p @sap/cds-dk cds build --production
+    - npx rimraf gen/db/src/gen/data

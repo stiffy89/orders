@@ -1,54 +1,59 @@
 {
-  "name": "orders",
-  "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
-  "dependencies": {
-    "@sap/cds": "^7",
-    "@sap/cds-hana": "^2",
-    "@sap/xssec": "^3",
-    "express": "^4",
-    "passport": "^0"
-  },
-  "devDependencies": {
-    "@cap-js/sqlite": "^1",
-    "@sap/cds-dk": "^7",
-    "@sap/ux-specification": "^1.108.18"
-  },
-  "engines": {
-    "node": "^16"
-  },
-  "scripts": {
-    "start": "cds-serve",
-    "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false"
-  },
-  "cds": {
-    "build": {
-      "tasks": [
-        {
-          "for": "hana",
-          "dest": "../db"
-        },
-        {
-          "for": "node-cf"
-        }
-      ]
+    "name": "orders",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap-cloud-sdk/http-client": "^3.7.0",
+        "@sap/cds": "^7",
+        "@sap/cds-hana": "^2",
+        "@sap/xssec": "^3",
+        "express": "^4",
+        "passport": "^0"
     },
-    "requires": {
-      "auth": "xsuaa",
-      "db": {
-        "kind": "hana-cloud"
-      },
-      "destinations": true,
-      "gwsample": {
-        "kind": "odata-v2",
-        "model": "srv/external/gwsample"
-      }
-    }
-  },
-  "sapux": [
-    "app/orders"
-  ]
+    "devDependencies": {
+        "@cap-js/sqlite": "^1",
+        "@sap/cds-dk": "^7",
+        "@sap/ux-specification": "^1.108.18",
+        "rimraf": "^3.0.2"
+    },
+    "engines": {
+        "node": "^16"
+    },
+    "scripts": {
+        "start": "cds-serve",
+        "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false",
+        "undeploy": "cf undeploy orders --delete-services --delete-service-keys --delete-service-brokers",
+        "build": "rimraf resources mta_archives && mbt build --mtar archive",
+        "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+    },
+    "cds": {
+        "build": {
+            "tasks": [
+                {
+                    "for": "hana",
+                    "dest": "../db"
+                },
+                {
+                    "for": "node-cf"
+                }
+            ]
+        },
+        "requires": {
+            "auth": "xsuaa",
+            "db": {
+                "kind": "hana-cloud"
+            },
+            "destinations": true,
+            "gwsample": {
+                "kind": "odata-v2",
+                "model": "srv/external/gwsample"
+            }
+        }
+    },
+    "sapux": [
+        "app/orders"
+    ]
 }

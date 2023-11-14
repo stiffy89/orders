@@ -14,8 +14,18 @@ annotate service.PurchaseOrders with @(
         },
         {
             $Type : 'UI.DataField',
-            Label : 'Price',
+            Label : 'Total Price',
             Value : Price,
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : Product.Name,
+            Label : 'Product Name',
+        },
+        {
+            $Type : 'UI.DataField',
+            Value : BusinessPartner.CompanyName,
+            Label : 'Partner Name',
         },
     ]
 );
