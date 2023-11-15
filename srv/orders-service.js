@@ -125,11 +125,60 @@ module.exports = cds.service.impl(async function () {
     });
 
     this.on('READ', Products, async(req, next) => {
-        return next();
+        //look at the request coming through
+        const queryOptions = req._queryOptions;
+        
+        if (!queryOptions) return [];
+
+        //we are only interested if there is a $search query
+        if (queryOptions['$search']){
+            let sQueryStr = queryOptions['$search'].replace(/['"]+/g, '');
+            let sUrl = "/ProductSet?$filter=substringof('"+sQueryStr+"', Name) eq true&$inlinecount=allpages";
+            let results = await gwservice.send({
+                method: 'GET',
+                path: sUrl
+            });
+
+            return results;
+        }
+        else {
+            let sUrl = "/ProductSet?$inlinecount=allpages";
+            let results = await gwservice.send({
+                method: 'GET',
+                path: sUrl
+            });
+
+            return results;
+        }
     });
 
     this.on('READ', BusinessPartners, async(req, next) => {
-        return next();
+        //look at the query options coming through and build our url string
+        const queryOptions = req._queryOptions;
+        
+        if (!queryOptions) return [];
+
+        //we are only interested if there is a $search query
+        if (queryOptions['$search']){
+            let sQueryStr = queryOptions['$search'].replace(/['"]+/g, '');
+            let sUrl = "/BusinessPartnerSet?$filter=substringof('"+sQueryStr+"', CompanyName) eq true&$inlinecount=allpages";
+            let results = await gwservice.send({
+                method: 'GET',
+                path: sUrl
+            });
+
+            return results;
+        }
+        else {
+            let sUrl = "/BusinessPartnerSet?$inlinecount=allpages";
+            let results = await gwservice.send({
+                method: 'GET',
+                path: sUrl
+            });
+
+            return results;
+        }
+
     });
 
     this.after('NEW', PurchaseOrders.drafts, async(res, req) => {
@@ -146,5 +195,5 @@ module.exports = cds.service.impl(async function () {
         }
     });
 
-    
+
 })

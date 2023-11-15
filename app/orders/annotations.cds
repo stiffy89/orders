@@ -132,8 +132,7 @@ annotate service.PurchaseOrders with @odata.draft.enabled;
 
 //annotation to hide the update and delete buttons
 annotate service.PurchaseOrders with @(
-    UI.UpdateHidden : true,
-    UI.DeleteHidden : true
+    UI.UpdateHidden : true
 );
 
 annotate service.PurchaseOrders with {
@@ -193,12 +192,8 @@ annotate service.BusinessPartners with {
 annotate service.PurchaseOrders with @(
     UI.HeaderInfo : {
         TypeName : 'Purchase Order',
-        TypeNamePlural : '',
-    }
-);
-annotate service.PurchaseOrders with @(
-    UI.HeaderInfo : {
         TypeNamePlural : 'Purchase Orders',
-        TypeName : '',
     }
 );
+
+
