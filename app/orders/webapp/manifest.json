@@ -51,7 +51,8 @@
                 "sap.m": {},
                 "sap.ui.core": {},
                 "sap.ushell": {},
-                "sap.fe.templates": {}
+                "sap.fe.templates": {},
+                "sap.f": {}
             }
         },
         "contentDensities": {
@@ -88,12 +89,17 @@
                 {
                     "pattern": ":?query:",
                     "name": "PurchaseOrdersList",
-                    "target": "PurchaseOrdersList"
+                    "target": [
+                        "PurchaseOrdersList"
+                    ]
                 },
                 {
                     "pattern": "PurchaseOrders({key}):?query:",
                     "name": "PurchaseOrdersObjectPage",
-                    "target": "PurchaseOrdersObjectPage"
+                    "target": [
+                        "PurchaseOrdersList",
+                        "PurchaseOrdersObjectPage"
+                    ]
                 }
             ],
             "targets": {
@@ -115,7 +121,9 @@
                             },
                             "initialLoad": "Enabled"
                         }
-                    }
+                    },
+                    "controlAggregation": "beginColumnPages",
+                    "contextPattern": ""
                 },
                 "PurchaseOrdersObjectPage": {
                     "type": "Component",
@@ -126,9 +134,24 @@
                             "editableHeaderContent": false,
                             "contextPath": "/PurchaseOrders"
                         }
-                    }
+                    },
+                    "controlAggregation": "midColumnPages",
+                    "contextPattern": "/PurchaseOrders({key})"
                 }
+            },
+            "config": {
+                "flexibleColumnLayout": {
+                    "defaultTwoColumnLayoutType": "TwoColumnsMidExpanded",
+                    "defaultThreeColumnLayoutType": "ThreeColumnsMidExpanded"
+                },
+                "routerClass": "sap.f.routing.Router"
             }
+        },
+        "rootView": {
+            "viewName": "sap.fe.templates.RootContainer.view.Fcl",
+            "type": "XML",
+            "async": true,
+            "id": "appRootView"
         }
     },
     "sap.fiori": {

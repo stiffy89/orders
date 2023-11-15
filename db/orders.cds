@@ -8,8 +8,8 @@ entity PurchaseOrders {
         Units: Integer;
         Date: Date;
         Price: Decimal(13,3);
-        Product: Association to one Products;
-        BusinessPartner: Association to one BusinessPartners;
+        Product: Association to Products;
+        BusinessPartner: Association to BusinessPartners;
 }
 
 entity Products as projection on external.ProductSet;

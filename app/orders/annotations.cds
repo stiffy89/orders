@@ -50,13 +50,13 @@ annotate service.PurchaseOrders with @(
             },
             {
                 $Type : 'UI.DataField',
-                Value : Product.ProductID,
-                Label : 'ProductID',
+                Value : Product_ProductID,
+                Label : 'Product_ProductID',
             },
             {
                 $Type : 'UI.DataField',
-                Value : BusinessPartner.BusinessPartnerID,
-                Label : 'BusinessPartnerID',
+                Value : BusinessPartner_BusinessPartnerID,
+                Label : 'BusinessPartner_BusinessPartnerID',
             }
         ],
     },
@@ -136,48 +136,69 @@ annotate service.PurchaseOrders with @(
     UI.DeleteHidden : true
 );
 
-annotate service.Products with {
-    ProductID @Common.Text : {
-            $value : Name,
-            ![@UI.TextArrangement] : #TextLast,
+annotate service.PurchaseOrders with {
+    Product @Common.Text : {
+            $value : Product.Name,
+            ![@UI.TextArrangement] : #TextFirst,
         }
 };
-annotate service.Products with {
-    ProductID @UI.MultiLineText : false
-};
-annotate service.Products with {
-    ProductID @(Common.ValueList : {
+annotate service.PurchaseOrders with {
+    Product @(Common.ValueList : {
             $Type : 'Common.ValueListType',
             CollectionPath : 'Products',
             Parameters : [
                 {
                     $Type : 'Common.ValueListParameterInOut',
-                    LocalDataProperty : ProductID,
-                    ValueListProperty : 'ProductID',
+                    LocalDataProperty : Product_ProductID,
+                    ValueListProperty : 'Name',
                 },
             ],
-            Label : 'Product Search',
+            Label : 'Products Search',
         },
         Common.ValueListWithFixedValues : true
 )};
-annotate service.BusinessPartners with {
-    BusinessPartnerID @Common.Text : {
-            $value : CompanyName,
-            ![@UI.TextArrangement] : #TextOnly,
+annotate service.Products with {
+    Name @Common.Text : {
+        $value : ProductID,
+        ![@UI.TextArrangement] : #TextLast,
+    }
+};
+annotate service.PurchaseOrders with {
+    BusinessPartner @Common.Text : {
+            $value : BusinessPartner.CompanyName,
+            ![@UI.TextArrangement] : #TextFirst,
         }
 };
-annotate service.BusinessPartners with {
-    BusinessPartnerID @(Common.ValueList : {
+annotate service.PurchaseOrders with {
+    BusinessPartner @(Common.ValueList : {
             $Type : 'Common.ValueListType',
             CollectionPath : 'BusinessPartners',
             Parameters : [
                 {
                     $Type : 'Common.ValueListParameterInOut',
-                    LocalDataProperty : BusinessPartnerID,
-                    ValueListProperty : 'BusinessPartnerID',
+                    LocalDataProperty : BusinessPartner_BusinessPartnerID,
+                    ValueListProperty : 'CompanyName',
                 },
             ],
-            Label : 'Business partner search',
+            Label : 'Business Partner Search',
         },
         Common.ValueListWithFixedValues : true
 )};
+annotate service.BusinessPartners with {
+    CompanyName @Common.Text : {
+        $value : BusinessPartnerID,
+        ![@UI.TextArrangement] : #TextLast,
+    }
+};
+annotate service.PurchaseOrders with @(
+    UI.HeaderInfo : {
+        TypeName : 'Purchase Order',
+        TypeNamePlural : '',
+    }
+);
+annotate service.PurchaseOrders with @(
+    UI.HeaderInfo : {
+        TypeNamePlural : 'Purchase Orders',
+        TypeName : '',
+    }
+);
