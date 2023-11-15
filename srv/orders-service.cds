@@ -11,14 +11,14 @@ service ordersservice {
     };
 
     entity Products as select from orders.Products {
-        ProductID @Core.Computed,
+        ProductID,
         Name @Core.Computed,
         Price @Core.Computed,
         Category @Core.Computed
     };
 
     entity BusinessPartners as select from orders.BusinessPartners {
-        BusinessPartnerID @Core.Computed,
+        BusinessPartnerID,
         CompanyName @Core.Computed,
         EmailAddress @Core.Computed,
         WebAddress @Core.Computed,

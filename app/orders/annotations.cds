@@ -50,14 +50,14 @@ annotate service.PurchaseOrders with @(
             },
             {
                 $Type : 'UI.DataField',
-                Value : Product.Name,
-                Label : 'Product',
+                Value : Product.ProductID,
+                Label : 'ProductID',
             },
             {
                 $Type : 'UI.DataField',
-                Value : BusinessPartner.CompanyName,
-                Label : 'Partner',
-            },
+                Value : BusinessPartner.BusinessPartnerID,
+                Label : 'BusinessPartnerID',
+            }
         ],
     },
     UI.Facets : [
@@ -136,3 +136,48 @@ annotate service.PurchaseOrders with @(
     UI.DeleteHidden : true
 );
 
+annotate service.Products with {
+    ProductID @Common.Text : {
+            $value : Name,
+            ![@UI.TextArrangement] : #TextLast,
+        }
+};
+annotate service.Products with {
+    ProductID @UI.MultiLineText : false
+};
+annotate service.Products with {
+    ProductID @(Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'Products',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : ProductID,
+                    ValueListProperty : 'ProductID',
+                },
+            ],
+            Label : 'Product Search',
+        },
+        Common.ValueListWithFixedValues : true
+)};
+annotate service.BusinessPartners with {
+    BusinessPartnerID @Common.Text : {
+            $value : CompanyName,
+            ![@UI.TextArrangement] : #TextOnly,
+        }
+};
+annotate service.BusinessPartners with {
+    BusinessPartnerID @(Common.ValueList : {
+            $Type : 'Common.ValueListType',
+            CollectionPath : 'BusinessPartners',
+            Parameters : [
+                {
+                    $Type : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : BusinessPartnerID,
+                    ValueListProperty : 'BusinessPartnerID',
+                },
+            ],
+            Label : 'Business partner search',
+        },
+        Common.ValueListWithFixedValues : true
+)};
