@@ -1,9 +1,11 @@
 const cds = require('@sap/cds');
+const res = require('express/lib/response');
 
 
 module.exports = cds.service.impl(async function () { 
     //const gwservice = await cds.connect.to('gwsample');
     let srv = this;
+    let { PurchaseOrders, Products, BusinessPartners } = this.entities;
 
     const gwservice = await cds.connect.to('gwsample');
 
@@ -120,5 +122,27 @@ module.exports = cds.service.impl(async function () {
         }
         
         return orders;
+    });
+
+    this.on('READ', Products, async(req, next) => {
+        return next();
+    });
+
+    this.on('READ', BusinessPartners, async(req, next) => {
+        return next();
+    });
+
+    this.after('NEW', PurchaseOrders.drafts, async(res, req) => {
+        //default the date value to today and update the new record
+        let sDate = (new Date()).toISOString().split('T')[0];
+        try {
+            await UPDATE(PurchaseOrders.drafts).with({
+                Date: sDate
+            }).where({PurchaseOrderUUID : res.PurchaseOrderUUID});
+        } catch (error) {
+            req.error({
+                message: "Error defaulting the values on a new"
+            })
+        }
     })
 })

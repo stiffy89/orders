@@ -122,24 +122,17 @@ annotate service.PurchaseOrders with @(
                 Label : 'Phone',
             },{
                 $Type : 'UI.DataField',
-                Value : BusinessPartner.Address_Building,
-                Label : 'Address_Building',
-            },{
-                $Type : 'UI.DataField',
-                Value : BusinessPartner.Address_City,
-                Label : 'City',
-            },{
-                $Type : 'UI.DataField',
-                Value : BusinessPartner.Address_Country,
-                Label : 'Country',
-            },{
-                $Type : 'UI.DataField',
-                Value : BusinessPartner.Address_PostalCode,
-                Label : 'Address_PostalCode',
-            },{
-                $Type : 'UI.DataField',
-                Value : BusinessPartner.Address_Street,
-                Label : 'Street',
+                Value : BusinessPartner.WebAddress,
+                Label : 'Website',
             },],
     }
 );
+
+annotate service.PurchaseOrders with @odata.draft.enabled;
+
+//annotation to hide the update and delete buttons
+annotate service.PurchaseOrders with @(
+    UI.UpdateHidden : true,
+    UI.DeleteHidden : true
+);
+
