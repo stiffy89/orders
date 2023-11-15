@@ -51,12 +51,12 @@ annotate service.PurchaseOrders with @(
             {
                 $Type : 'UI.DataField',
                 Value : Product_ProductID,
-                Label : 'Product_ProductID',
+                Label : 'ProductID',
             },
             {
                 $Type : 'UI.DataField',
                 Value : BusinessPartner_BusinessPartnerID,
-                Label : 'BusinessPartner_BusinessPartnerID',
+                Label : 'PartnerID',
             }
         ],
     },
@@ -136,12 +136,6 @@ annotate service.PurchaseOrders with @(
 );
 
 annotate service.PurchaseOrders with {
-    Product @Common.Text : {
-            $value : Product.Name,
-            ![@UI.TextArrangement] : #TextFirst,
-        }
-};
-annotate service.PurchaseOrders with {
     Product @(Common.ValueList : {
             $Type : 'Common.ValueListType',
             CollectionPath : 'Products',
@@ -161,12 +155,6 @@ annotate service.Products with {
         $value : ProductID,
         ![@UI.TextArrangement] : #TextLast,
     }
-};
-annotate service.PurchaseOrders with {
-    BusinessPartner @Common.Text : {
-            $value : BusinessPartner.CompanyName,
-            ![@UI.TextArrangement] : #TextFirst,
-        }
 };
 annotate service.PurchaseOrders with {
     BusinessPartner @(Common.ValueList : {
@@ -196,4 +184,9 @@ annotate service.PurchaseOrders with @(
     }
 );
 
-
+annotate service.PurchaseOrders @(Common : {
+    SideEffects #CustomerChanged : {
+        SourceProperties : ['Product_ProductID'],
+        TargetEntities   : [Product]
+    }
+});
