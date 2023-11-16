@@ -126,7 +126,7 @@ module.exports = cds.service.impl(async function () {
 
     this.on('READ', Products, async(req, next) => {
         //look at the request coming through
-    /*    const queryOptions = req._queryOptions;
+        const queryOptions = req._queryOptions;
         
         if (!queryOptions) return [];
 
@@ -149,12 +149,12 @@ module.exports = cds.service.impl(async function () {
             });
 
             return results;
-        }  */
+        } 
     });
 
     this.on('READ', BusinessPartners, async(req, next) => {
-        //look at the query options coming through and build our url string
-    /*    const queryOptions = req._queryOptions;
+        //look at the request coming through
+        const queryOptions = req._queryOptions;
         
         if (!queryOptions) return [];
 
@@ -177,8 +177,7 @@ module.exports = cds.service.impl(async function () {
             });
 
             return results;
-        }  */
-
+        } 
     });
 
     this.after('NEW', PurchaseOrders.drafts, async(res, req) => {
@@ -192,6 +191,29 @@ module.exports = cds.service.impl(async function () {
             req.error({
                 message: "Error defaulting the values on a new"
             })
+        }
+    });
+
+    this.on('UPDATE', PurchaseOrders.drafts, async(req, next) => {
+        if (req.data.Product_ProductID){
+            //read this product
+            try{
+                const product = await gwservice.send({
+                    method: 'GET',
+                    path: "/ProductSet('" + req.data.Product_ProductID + "')"
+                });
+
+                req.data.Product = product;
+
+                return next();
+            }
+            catch (error){
+                req.error({
+                    message: error
+                })
+            }
+        } else {
+            return next();
         }
     });
 
@@ -209,9 +231,6 @@ module.exports = cds.service.impl(async function () {
             if (expand && (ref[0] === 'Product' || ref[0] === 'BusinessPartner')){
 
                 indexObj[ref[0]] = index;
-
-                //if we find either, just remove it
-                req.query.SELECT.columns.splice(index, 1);
             }
         });
 
@@ -239,8 +258,76 @@ module.exports = cds.service.impl(async function () {
         //get the results from db
         const orders = await next();
 
-        
-        
+        const asArr = x => Array.isArray(x) ? x : [x];
+
+        if (!Product && !BusinessPartner){
+            return orders;
+        }
+
+        if (Product) {
+            const productIDs = asArr(orders).map((order) => {
+                return order.Product_ProductID;
+            });
+
+            //we need to build the url with the filters to call our external service
+            let sProductUrl = "/ProductSet?$filter=";
+            productIDs.forEach((x, index, array) => {
+                sProductUrl += "ProductID eq '" + x + "'";
+
+                //if its not the last add the OR condition, otherwise leave it out
+                if (index < (array.length -1)){
+                    sProductUrl += " or ";
+                }
+            });
+
+            const extProducts = await gwservice.send({
+                method: 'GET',
+                path: sProductUrl
+            });
+
+            //map the ext products back to our database data so we can use it
+            const productMap = {};
+            for (const product of extProducts){
+                productMap[product.ProductID] = product;
+            }
+
+            for (const order of asArr(orders)){
+                order.Product = productMap[order.Product_ProductID]
+            }
+        }
+
+        if (BusinessPartner) {
+            const businessIDs = asArr(orders).map((order) => {
+                return order.BusinessPartner_BusinessPartnerID;
+            });
+
+            //we need to build the url with the filters to call our external service
+            let sPartnerUrl = "/BusinessPartnerSet?$filter=";
+            businessIDs.forEach((x, index, array) => {
+                sPartnerUrl += "BusinessPartnerID eq '" + x + "'";
+
+                //if its not the last add the OR condition, otherwise leave it out
+                if (index < (array.length -1)){
+                    sPartnerUrl += " or ";
+                }
+            });
+
+            const extBusinessPartners = await gwservice.send({
+                method: 'GET',
+                path: sPartnerUrl
+            });
+
+            //map the ext bus partners back to our database data so we can use it
+            const partnersMap = {};
+            for (const partner of extBusinessPartners){
+                partnersMap[partner.BusinessPartnerID] = partner;
+            }
+
+            for (const order of asArr(orders)){
+                order.BusinessPartner = partnersMap[order.BusinessPartner_BusinessPartnerID]
+            }
+        }
+
         return orders;
     })
 

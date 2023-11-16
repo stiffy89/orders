@@ -143,7 +143,7 @@ annotate service.PurchaseOrders with {
                 {
                     $Type : 'Common.ValueListParameterInOut',
                     LocalDataProperty : Product_ProductID,
-                    ValueListProperty : 'Name',
+                    ValueListProperty : 'ProductID',
                 },
             ],
             Label : 'Products Search',
@@ -164,7 +164,7 @@ annotate service.PurchaseOrders with {
                 {
                     $Type : 'Common.ValueListParameterInOut',
                     LocalDataProperty : BusinessPartner_BusinessPartnerID,
-                    ValueListProperty : 'CompanyName',
+                    ValueListProperty : 'BusinessPartnerID',
                 },
             ],
             Label : 'Business Partner Search',
@@ -186,7 +186,19 @@ annotate service.PurchaseOrders with @(
 
 annotate service.PurchaseOrders @(Common : {
     SideEffects #CustomerChanged : {
-        SourceProperties : ['Product_ProductID'],
-        TargetEntities   : [Product]
+        SourceProperties : ['Product_ProductID', 'BusinessPartner_BusinessPartnerID'],
+        TargetEntities   : [Product, BusinessPartner]
     }
 });
+annotate service.Products with {
+    ProductID @Common.Text : {
+        $value : Name,
+        ![@UI.TextArrangement] : #TextFirst,
+    }
+};
+annotate service.BusinessPartners with {
+    BusinessPartnerID @Common.Text : {
+        $value : CompanyName,
+        ![@UI.TextArrangement] : #TextFirst,
+    }
+};
