@@ -184,12 +184,33 @@ annotate service.PurchaseOrders with @(
     }
 );
 
+//properties need to be '' where as entities are not as demonstrated below
+//source properties are what is inputed
+//target is what needs to be effected after the source has been changed
 annotate service.PurchaseOrders @(Common : {
-    SideEffects #CustomerChanged : {
-        SourceProperties : ['Product_ProductID', 'BusinessPartner_BusinessPartnerID'],
-        TargetEntities   : [Product, BusinessPartner]
+    SideEffects #ProductChanged : {
+        SourceProperties : ['Product_ProductID'],
+        TargetEntities   : [Product],
+        TargetProperties : ['Price']
     }
 });
+
+annotate service.PurchaseOrders @(Common : {
+    SideEffects #BusinessChanged : {
+        SourceProperties : ['BusinessPartner_BusinessPartnerID'],
+        TargetEntities   : [BusinessPartner]
+    }
+});
+
+annotate service.PurchaseOrders @(Common : {
+    SideEffects #UnitsChanged : {
+        SourceProperties : ['Units'],
+        TargetProperties   : ['Price']
+    }
+});
+
+
+
 annotate service.Products with {
     ProductID @Common.Text : {
         $value : Name,

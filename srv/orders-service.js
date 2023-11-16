@@ -195,6 +195,8 @@ module.exports = cds.service.impl(async function () {
     });
 
     this.on('UPDATE', PurchaseOrders.drafts, async(req, next) => {
+        //we need to update the total price of our purchase order, properties to look out for
+        
         if (req.data.Product_ProductID){
             //read this product
             try{
@@ -203,19 +205,66 @@ module.exports = cds.service.impl(async function () {
                     path: "/ProductSet('" + req.data.Product_ProductID + "')"
                 });
 
-                req.data.Product = product;
-
-                return next();
+                srv._ExternalProduct = product;
+                
+                //read our record and get the unit count to update the total cost
+                const purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID})
+                
+                if (purchaseOrder.Units){
+                    req.data.Price = purchaseOrder.Units * product.Price;
+                }
             }
             catch (error){
                 req.error({
                     message: error
                 })
             }
-        } else {
-            return next();
         }
+        else if (req.data.Units){
+            try {
+                const purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID});
+                //if we have a product already populated
+                if (purchaseOrder.Product_ProductID){
+
+                    if (srv._ExternalProduct){
+                        if (srv._ExternalProduct.ProductID == purchaseOrder.Product_ProductID){
+                            req.data.Price = req.data.Units * srv._ExternalProduct.Price;
+                        }
+                    } else {
+                        const product = await gwservice.send({
+                            method: 'GET',
+                            path: "/ProductSet('" + purchaseOrder.Product_ProductID + "')"
+                        });
+
+                        req.data.Price = req.data.Units * product.Price;
+                    }
+                }
+            }
+            catch (error) {
+                req.error({
+                    message: error
+                })
+            }
+        }
+
+        return next();
     });
+
+    this.on('CANCEL', PurchaseOrders.drafts, async(req, next) => {
+        if (srv._ExternalProduct){
+            srv._ExternalProduct = null;
+        }
+
+        return next();
+    });
+
+    this.on('CREATE', PurchaseOrders.drafts, async(req, next) => {
+        if (srv._ExternalProduct) {
+            srv._ExternalProduct = null;
+        }
+
+        return next();
+    })
 
     this.on('READ', PurchaseOrders.drafts, async(req, next) => {
         //handling expands in our entity
@@ -265,6 +314,7 @@ module.exports = cds.service.impl(async function () {
         }
 
         if (Product) {
+            
             const productIDs = asArr(orders).map((order) => {
                 return order.Product_ProductID;
             });
