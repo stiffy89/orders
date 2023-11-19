@@ -196,7 +196,8 @@ module.exports = cds.service.impl(async function () {
 
     this.on('UPDATE', PurchaseOrders.drafts, async(req, next) => {
         //we need to update the total price of our purchase order, properties to look out for
-        
+        const asArr = x => Array.isArray(x) ? x : [x];
+
         if (req.data.Product_ProductID){
             //read this product
             try{
@@ -208,10 +209,11 @@ module.exports = cds.service.impl(async function () {
                 srv._ExternalProduct = product;
                 
                 //read our record and get the unit count to update the total cost
-                const purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID})
-                
-                if (purchaseOrder.Units){
-                    req.data.Price = purchaseOrder.Units * product.Price;
+                let purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID})
+                purchaseOrder = asArr(purchaseOrder);
+
+                if (purchaseOrder[0].Units){
+                    req.data.Price = purchaseOrder[0].Units * product.Price;
                 }
             }
             catch (error){
@@ -222,27 +224,41 @@ module.exports = cds.service.impl(async function () {
         }
         else if (req.data.Units){
             try {
-                const purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID});
+                let purchaseOrder = await SELECT.from(PurchaseOrders.drafts).where({PurchaseOrderUUID: req.data.PurchaseOrderUUID});
+                purchaseOrder = asArr(purchaseOrder);
                 //if we have a product already populated
-                if (purchaseOrder.Product_ProductID){
-
+                if (purchaseOrder[0].Product_ProductID){
                     if (srv._ExternalProduct){
-                        if (srv._ExternalProduct.ProductID == purchaseOrder.Product_ProductID){
+                        if (srv._ExternalProduct.ProductID == purchaseOrder[0].Product_ProductID){
                             req.data.Price = req.data.Units * srv._ExternalProduct.Price;
                         }
                     } else {
-                        const product = await gwservice.send({
+                        let product = await gwservice.send({
                             method: 'GET',
                             path: "/ProductSet('" + purchaseOrder.Product_ProductID + "')"
                         });
 
-                        req.data.Price = req.data.Units * product.Price;
+                        product = asArr(product);
+
+                        req.data.Price = req.data.Units * product[0].Price;
                     }
                 }
             }
             catch (error) {
                 req.error({
                     message: error
+                })
+            }
+        }
+        else if (req.data.Date){
+            //demo - max date is today, cannot enter date beyond today
+            let oSelectedDate = new Date(req.data.Date);
+            if (oSelectedDate > new Date()){
+
+                req.data.Date = "";
+
+                req.error({
+                    message: 'Cannot select a future date for purchase order creation, please select a date in the past'
                 })
             }
         }
