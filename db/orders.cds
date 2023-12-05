@@ -13,4 +13,4 @@ entity PurchaseOrders {
 }
 
 entity Products as projection on external.ProductSet;
-entity BusinessPartners as projection on external.BusinessPartnerSet; 
+entity BusinessPartners as projection on external.BusinessPartnerSet;  
